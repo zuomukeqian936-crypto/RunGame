@@ -579,7 +579,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 116
   m_CollisionDetection: 0
 --- !u!65 &1142702531
 BoxCollider:
@@ -615,7 +615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   _roadPrefab: {fileID: 5385896330042637582, guid: 2b3435cf7d891424ea83bf7427a6e117, type: 3}
-  _spawnPosition: {x: 0, y: 0, z: 190}
+  _spawnPosition: {x: 0, y: 0, z: 185}
 --- !u!1001 &1158187406
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -707,7 +707,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8999338503545881367, guid: 5b5c678f31981e34f9122b87217da1ac, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -54.44
+      value: -52.5
       objectReference: {fileID: 0}
     - target: {fileID: 8999338503545881367, guid: 5b5c678f31981e34f9122b87217da1ac, type: 3}
       propertyPath: m_LocalRotation.w
@@ -764,7 +764,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 644027910916855787, guid: 8cb75dc2fdd63734988b8358f1314d25, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -48
+      value: -46
       objectReference: {fileID: 0}
     - target: {fileID: 644027910916855787, guid: 8cb75dc2fdd63734988b8358f1314d25, type: 3}
       propertyPath: m_LocalRotation.w
