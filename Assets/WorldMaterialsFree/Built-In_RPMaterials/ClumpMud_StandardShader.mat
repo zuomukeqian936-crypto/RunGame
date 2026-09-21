@@ -51,17 +51,17 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture:
-        m_Texture: {fileID: 2800000, guid: 8a43d49b2d423ca43b66c224d8f108d1, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Backwards_Strength: 0.0001
+    - _Backwards_Strength: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.6
     - _GlossyReflections: 1
     - _Parallax: 0.02
-    - _Sideways_Strength: 0.005
+    - _Sideways_Strength: 0
     m_Colors:
     - _BaseColor: {r: 0.45911938, g: 0.44035032, b: 0.44035032, a: 0.90588236}
     - _Color: {r: 0.45911932, g: 0.4403503, b: 0.4403503, a: 0.90588236}

@@ -105,40 +105,7 @@ public class PlayerController : MonoBehaviour
             transform.Rotate(Vector3.zero);
             _isRotate = false;
         }
-    }
-
-
-        //if(_isPressed == true)
-        //{
-        //    // 1. 目標のX座標をenumのインデックスから取得
-        //    float targetX = _laneXPositions[(int)_currentPosition];
-
-        //    // 2. 現在のX座標から目標のX座標へ滑らかに補間移動
-        //    float currentX = _rigidbody.position.x;
-        //    _playerDirection = new Vector3(0f, currentX - targetX, 0f).normalized;
-        //    transform.Rotate(_playerDirection);
-
-        //    float newX = Mathf.MoveTowards(currentX, targetX, _laneChangeSpeed * Time.fixedDeltaTime);
-
-        //    // 3. 前進（Z方向）とレーン移動（X方向）を合わせた移動ベクトルを作成
-        //    Vector3 moveVelocity = new Vector3((newX - currentX) / Time.fixedDeltaTime, _rigidbody.linearVelocity.y, _forwardSpeed);
-
-        //    _rigidbody.linearVelocity = moveVelocity;
-
-        //    if(Mathf.Approximately(targetX,newX))
-        //    {
-        //        ResetPress();
-        //    }
-        //}
-        //else
-        //{
-        //    if(_playerDirection != Vector3.zero)
-        //    {
-        //        transform.Rotate(new Vector3(0f, 0f, 0f));
-        //    }
-
-        //    _rigidbody.linearVelocity = new Vector3(0f, 0f, _forwardSpeed);
-        //}  
+    }  
 
     /// <summary>
     /// 着地処理
