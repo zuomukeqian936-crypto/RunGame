@@ -7,8 +7,7 @@ public class StageGenerator : MonoBehaviour
     [SerializeField] private ObjectPoolManager poolManager; // プール用クラスの参照
 
     [Header("プレハブのリスト")]
-    [SerializeField] private List<GameObject> groundPrefabs; // 地面のプレハブリスト
-    [SerializeField] private List<GameObject> tunnelPrefabs; // トンネルのプレハブリスト
+    [SerializeField] private List<GameObject> stagePrefabs; // ステージパーツのプレハブリスト（1つに統合）
 
     [Header("生成設定")]
     [SerializeField] private Transform playerTransform; // プレイヤーのtransform
@@ -34,9 +33,8 @@ public class StageGenerator : MonoBehaviour
             poolManager = gameObject.AddComponent<ObjectPoolManager>();
         }
 
-        // プールの事前準備
-        poolManager.InitializePool(groundPrefabs, initialPoolSize);
-        poolManager.InitializePool(tunnelPrefabs, initialPoolSize);
+        // 1つのリストに対してプールの事前準備を行う
+        poolManager.InitializePool(stagePrefabs, initialPoolSize);
 
         // 初期パーツを生成して並べる
         for (int i = 0; i < maxPartsCount; i++)
@@ -58,17 +56,15 @@ public class StageGenerator : MonoBehaviour
     }
 
     /// <summary>
-    ///ランダムにパーツを選び、プールから取り出して配置する
+    /// リストからランダムにパーツを選び、プールから取り出して配置する
     /// </summary>
     private void SpawnRandomPart()
     {
-        bool isTunnel = (Random.value < 0.5f) && (tunnelPrefabs != null && tunnelPrefabs.Count > 0);
-        List<GameObject> targetList = isTunnel ? tunnelPrefabs : groundPrefabs;
+        if (stagePrefabs == null || stagePrefabs.Count == 0) return;
 
-        if (targetList == null || targetList.Count == 0) return;
-
-        int randomIndex = Random.Range(0, targetList.Count);
-        GameObject selectedPrefab = targetList[randomIndex];
+        // リストの中からランダムに1つプレハブを選択
+        int randomIndex = Random.Range(0, stagePrefabs.Count);
+        GameObject selectedPrefab = stagePrefabs[randomIndex];
 
         float partLength = GetPartLength(selectedPrefab);
         Vector3 spawnPosition = new Vector3(0, 0, spawnZ + (partLength / 2f));
@@ -89,7 +85,7 @@ public class StageGenerator : MonoBehaviour
     }
 
     /// <summary>
-    ///古いパーツをプールに返却する
+    /// 古いパーツをプールに返却する
     /// </summary>
     private void ReturnOldPartToPool()
     {
@@ -101,7 +97,7 @@ public class StageGenerator : MonoBehaviour
     }
 
     /// <summary>
-    ///プレハブの長さ（Z軸）を取得
+    /// プレハブの長さ（Z軸）を取得
     /// </summary>
     private float GetPartLength(GameObject prefab)
     {

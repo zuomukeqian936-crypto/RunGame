@@ -63,6 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7036949444195982383}
   - component: {fileID: 2461468621034265578}
+  - component: {fileID: 3937853095634030609}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Ground
@@ -101,6 +102,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   _groundSpeed: {x: 0, y: 0, z: -20}
+--- !u!114 &3937853095634030609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5385896330042637582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b5919977007b479fc25f73e4d2184, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaterialStrengthController
+  targetMaterials:
+  - {fileID: 2100000, guid: 19845799f6e70df4f9c2a1aec6324d89, type: 2}
+  sidewaysMin: -0.0005
+  sidewaysMax: 0.0005
+  sidewaysChangeInterval: 5
+  sidewaysChangeSpeed: 0.03
+  backwardsMin: -0.0005
+  backwardsMax: 0.0005
+  backwardsChangeInterval: 5
+  backwardsChangeSpeed: 0.03
 --- !u!1 &5606464300872208425
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,7 +191,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 808e6047c73239f46ac7425fc704306c, type: 2}
+  - {fileID: 2100000, guid: 19845799f6e70df4f9c2a1aec6324d89, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
