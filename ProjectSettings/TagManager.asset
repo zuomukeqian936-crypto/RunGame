@@ -7,6 +7,7 @@ TagManager:
   - Trigger
   - Ground
   - Floor
+  - Snake
   layers:
   - Default
   - TransparentFX

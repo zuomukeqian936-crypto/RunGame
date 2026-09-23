@@ -32,7 +32,7 @@ public class ObjectPoolManager : MonoBehaviour
     /// <summary>
     ///プールからオブジェクトを取得する（足りなければ新しく生成する）
     /// </summary>
-    public GameObject Get(GameObject prefab)
+    public GameObject GetToPool(GameObject prefab)
     {
         if (poolDictionary.ContainsKey(prefab) && poolDictionary[prefab].Count > 0)
         {

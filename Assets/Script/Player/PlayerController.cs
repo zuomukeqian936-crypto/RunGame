@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float _forwardSpeed = 5f;       // 前進スピード
     [SerializeField] private float _laneChangeSpeed = 15f;   // レーン移動の速さ
     [SerializeField] private float[] _laneXPositions = { -8f, -5f, -2f }; // 左, 真ん中, 右のX座標
     [SerializeField] private float _jumpPower = 3f;
+    [SerializeField] private float _maxTiltAngle = 15f;      // レーン移動時に体が傾く最大角度
 
     private Rigidbody _rigidbody;
+    private Animator _animator;
     private PlayerPosition _currentPosition = PlayerPosition.Middle;
-    private Vector3 _playerDirection;
-    private bool _isRotate = false;
     private bool _isJump = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-        _rigidbody = GetComponent<Rigidbody>();    
+        _rigidbody = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>(); // Animatorコンポーネントの取得
     }
 
     void Update()
@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
         HandleJumpInput();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         MovePlayer();
@@ -37,28 +36,22 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            // 左に移動できる場合（Middle -> Left、Right -> Middle）
-            if (_currentPosition > PlayerPosition.Left && !_isRotate)
-            { 
+            if (_currentPosition > PlayerPosition.Left)
+            {
                 _currentPosition--;
-                _isRotate = true;
-                PlayerRotate();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow) && !_isRotate)
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            // 右に移動できる場合（Left -> Middle、Middle -> Right）
             if (_currentPosition < PlayerPosition.Right)
             {
                 _currentPosition++;
-                _isRotate = true;
-                PlayerRotate();
             }
         }
     }
 
     /// <summary>
-    /// ジャンプ処理
+    /// ジャンプ処理（アニメーション連動）
     /// </summary>
     private void HandleJumpInput()
     {
@@ -66,56 +59,59 @@ public class PlayerController : MonoBehaviour
         {
             _rigidbody.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
             _isJump = true;
+
+            // Animatorにジャンプを伝える（トリガー名が "Jump" の場合）
+            if (_animator != null)
+            {
+                _animator.SetTrigger("Jump");
+            }
+
             Debug.Log("ジャンプしました");
         }
     }
 
     /// <summary>
-    /// プレイヤー方向転換処理
-    /// </summary>
-    private void PlayerRotate()
-    {
-        // 1. 目標のX座標をenumのインデックスから取得
-        float targetX = _laneXPositions[(int)_currentPosition];
-        float currentX = _rigidbody.position.x;
-
-        // 2. 現在のX座標から目標のX座標へ滑らかに補間移動
-        _playerDirection = new Vector3(0f, targetX - currentX, 0f).normalized;
-        transform.Rotate(_playerDirection);
-    }
-
-    /// <summary>
-    /// プレイヤーの移動処理
+    /// プレイヤーの移動と傾き処理
     /// </summary>
     private void MovePlayer()
     {
-        // 1. 目標のX座標をenumのインデックスから取得
         float targetX = _laneXPositions[(int)_currentPosition];
         float currentX = _rigidbody.position.x;
 
+        // X座標を滑らかに移動
         float newX = Mathf.MoveTowards(currentX, targetX, _laneChangeSpeed * Time.fixedDeltaTime);
 
-        // 3. 前進（Z方向）とレーン移動（X方向）を合わせた移動ベクトルを作成
-        Vector3 moveVelocity = new Vector3((newX - currentX) / Time.fixedDeltaTime, _rigidbody.linearVelocity.y, _forwardSpeed);
-
+        // 速度の設定（Z方向は動かさず、X方向の移動のみ制御）
+        Vector3 moveVelocity = new Vector3((newX - currentX) / Time.fixedDeltaTime, _rigidbody.linearVelocity.y, 0f);
         _rigidbody.linearVelocity = moveVelocity;
 
-        if (Mathf.Abs(targetX - currentX) < 0.1f && _isRotate)
-        {
-            transform.Rotate(Vector3.zero);
-            _isRotate = false;
-        }
-    }  
+        // 移動方向（左・右）に応じて体を斜めに傾ける演出
+        float xDifference = targetX - currentX;
+        float tiltAngle = Mathf.Clamp(-xDifference * _maxTiltAngle, -_maxTiltAngle, _maxTiltAngle);
+
+        // 前方を向いた状態を基準に、Z軸（またはY軸）を中心に傾ける
+        Quaternion targetRotation = Quaternion.Euler(0f, 0f, tiltAngle);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * 10f);
+    }
 
     /// <summary>
     /// 着地処理
     /// </summary>
-    /// <param name="other">接触したオブジェクト</param>
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Floor"))
         {
             _isJump = false;
+
+            // 着地時にジャンプフラグやアニメーションを戻す場合ここで処理できます
+        }
+        //ゲームオーバー用のトリガー
+        if (other.gameObject.CompareTag("Snake"))
+        {
+            if (MainGameManager.Instance != null)
+            {
+                MainGameManager.Instance.OnSnakeHit();
+            }
         }
     }
 }

@@ -1,58 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3387475901534783834
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4917779998895532084}
-  - component: {fileID: 5139475014476292962}
-  m_Layer: 0
-  m_Name: New Section Trigger
-  m_TagString: Trigger
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4917779998895532084
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3387475901534783834}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: -40}
-  m_LocalScale: {x: 20, y: 20, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7036949444195982383}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &5139475014476292962
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3387475901534783834}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5385896330042637582
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,7 +33,6 @@ Transform:
   m_Children:
   - {fileID: 7516407573861008287}
   - {fileID: 7466910774449936582}
-  - {fileID: 4917779998895532084}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2461468621034265578
@@ -101,7 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54d3e47ab3c3d7c4f93bf6c5b5099c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _groundSpeed: {x: 0, y: 0, z: -20}
+  moveDirection: {x: 0, y: 0, z: -1}
+  initialSpeed: 5
+  maxSpeed: 100
+  acceleration: 0.5
 --- !u!114 &3937853095634030609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,13 +65,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialStrengthController
   targetMaterials:
   - {fileID: 2100000, guid: 19845799f6e70df4f9c2a1aec6324d89, type: 2}
-  sidewaysMin: -0.0005
-  sidewaysMax: 0.0005
-  sidewaysChangeInterval: 5
+  sidewaysMin: -0.005
+  sidewaysMax: 0.005
+  sidewaysChangeInterval: 3
   sidewaysChangeSpeed: 0.03
-  backwardsMin: -0.0005
-  backwardsMax: 0.0005
-  backwardsChangeInterval: 5
+  backwardsMin: -0.005
+  backwardsMax: 0.005
+  backwardsChangeInterval: 3
   backwardsChangeSpeed: 0.03
 --- !u!1 &5606464300872208425
 GameObject:

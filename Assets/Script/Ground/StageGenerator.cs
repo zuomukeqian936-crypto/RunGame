@@ -4,27 +4,25 @@ using UnityEngine;
 public class StageGenerator : MonoBehaviour
 {
     [Header("プール管理")]
-    [SerializeField] private ObjectPoolManager poolManager; // プール用クラスの参照
+    [SerializeField] private ObjectPoolManager poolManager;
 
     [Header("プレハブのリスト")]
-    [SerializeField] private List<GameObject> stagePrefabs; // ステージパーツのプレハブリスト（1つに統合）
+    [SerializeField] private List<GameObject> stagePrefabs;
 
     [Header("生成設定")]
-    [SerializeField] private Transform playerTransform; // プレイヤーのtransform
-    [SerializeField] private float spawnZ = 0f;          // 次に生成するZ座標の位置
-    [SerializeField] private int maxPartsCount = 5;      // 画面上に常に維持するパーツの数
-    [SerializeField] private float spawnDistanceCheck = 50f; // プレイヤーがこの距離まで来たら先を生成
-    [SerializeField] private int initialPoolSize = 3;    // 各プレハブの初期プール数
+    [SerializeField] private int maxPartsCount = 5;      // 画面上に維持するパーツの数
+    [SerializeField] private float partLength = 60f;     // 洞窟パーツ1個のZ方向の長さ（実際の長さに合わせて調整）
+    [SerializeField] private float recycleZ = -40f;      // このZ座標より手前に来たら、奥へワープさせるライン
+    [SerializeField] private int initialPoolSize = 5;
 
-    // 画面上でアクティブなパーツの情報を保持する構造体
+    // 現在アクティブなパーツの管理用キュー
+    private Queue<ActivePartInfo> activeParts = new Queue<ActivePartInfo>();
+
     private struct ActivePartInfo
     {
         public GameObject gameObject;
         public GameObject originalPrefab;
     }
-
-    // 現在アクティブなパーツのキュー
-    private Queue<ActivePartInfo> activeParts = new Queue<ActivePartInfo>();
 
     private void Start()
     {
@@ -33,80 +31,67 @@ public class StageGenerator : MonoBehaviour
             poolManager = gameObject.AddComponent<ObjectPoolManager>();
         }
 
-        // 1つのリストに対してプールの事前準備を行う
         poolManager.InitializePool(stagePrefabs, initialPoolSize);
 
-        // 初期パーツを生成して並べる
+        // 初期パーツを奥に向かって順番に並べる（例: Z = 0, 60, 120...）
         for (int i = 0; i < maxPartsCount; i++)
         {
-            SpawnRandomPart();
+            SpawnPartAt(i * partLength);
         }
     }
 
     private void Update()
     {
-        if (playerTransform == null) return;
+        if (activeParts.Count == 0) return;
 
-        // 一定距離進んだら新しいパーツを生成し、古いものをプールに戻す
-        if (spawnZ - playerTransform.position.z < spawnDistanceCheck)
+        // 一番手前にあるパーツをチェック
+        GameObject oldestPart = activeParts.Peek().gameObject;
+
+        // そのパーツが手前のライン（recycleZ）より後ろ（マイナス側）に行ったら、一番奥に移動させる
+        if (oldestPart.transform.position.z < recycleZ)
         {
-            SpawnRandomPart();
-            ReturnOldPartToPool();
+            RecycleAndRepositionOldestPart();
         }
     }
 
-    /// <summary>
-    /// リストからランダムにパーツを選び、プールから取り出して配置する
-    /// </summary>
-    private void SpawnRandomPart()
+    private void SpawnPartAt(float zPosition)
     {
         if (stagePrefabs == null || stagePrefabs.Count == 0) return;
 
-        // リストの中からランダムに1つプレハブを選択
         int randomIndex = Random.Range(0, stagePrefabs.Count);
         GameObject selectedPrefab = stagePrefabs[randomIndex];
 
-        float partLength = GetPartLength(selectedPrefab);
-        Vector3 spawnPosition = new Vector3(0, 0, spawnZ + (partLength / 2f));
-
-        // プールから取得
-        GameObject partObj = poolManager.Get(selectedPrefab);
-        partObj.transform.position = spawnPosition;
+        GameObject partObj = poolManager.GetToPool(selectedPrefab);
+        partObj.transform.position = new Vector3(0, 0, zPosition);
         partObj.transform.rotation = Quaternion.identity;
 
-        // 管理キューに追加
         activeParts.Enqueue(new ActivePartInfo
         {
             gameObject = partObj,
             originalPrefab = selectedPrefab
         });
-
-        spawnZ += partLength;
     }
 
-    /// <summary>
-    /// 古いパーツをプールに返却する
-    /// </summary>
-    private void ReturnOldPartToPool()
+    private void RecycleAndRepositionOldestPart()
     {
-        if (activeParts.Count > maxPartsCount)
+        // キューから一番古いパーツを取り出す
+        ActivePartInfo oldPart = activeParts.Dequeue();
+
+        // 現在一番奥にあるパーツのZ座標を見つける
+        float maxZ = float.MinValue;
+        foreach (var part in activeParts)
         {
-            ActivePartInfo oldPartInfo = activeParts.Dequeue();
-            poolManager.ReturnToPool(oldPartInfo.originalPrefab, oldPartInfo.gameObject);
+            if (part.gameObject.transform.position.z > maxZ)
+            {
+                maxZ = part.gameObject.transform.position.z;
+            }
         }
-    }
 
-    /// <summary>
-    /// プレハブの長さ（Z軸）を取得
-    /// </summary>
-    private float GetPartLength(GameObject prefab)
-    {
-        BoxCollider boxCollider = prefab.GetComponent<BoxCollider>();
-        if (boxCollider != null) return boxCollider.size.z * prefab.transform.localScale.z;
+        // 一番奥のパーツのさらに「パーツ1個分先」に配置する
+        float nextZ = maxZ + partLength;
+        oldPart.gameObject.transform.position = new Vector3(0, 0, nextZ);
 
-        MeshRenderer renderer = prefab.GetComponentInChildren<MeshRenderer>();
-        if (renderer != null) return renderer.bounds.size.z;
-
-        return 10f;
+        // キューの最後尾（一番新しい扱い）に戻す
+        activeParts.Enqueue(oldPart);
     }
 }
