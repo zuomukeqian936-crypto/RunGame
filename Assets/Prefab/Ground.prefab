@@ -69,8 +69,8 @@ MonoBehaviour:
   sidewaysMax: 0.005
   sidewaysChangeInterval: 3
   sidewaysChangeSpeed: 0.03
-  backwardsMin: -0.005
-  backwardsMax: 0.005
+  backwardsMin: -0.001
+  backwardsMax: 0.001
   backwardsChangeInterval: 3
   backwardsChangeSpeed: 0.03
 --- !u!1 &5606464300872208425
