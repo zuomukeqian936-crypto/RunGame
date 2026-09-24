@@ -11,7 +11,7 @@ public class GameSceneController : MonoBehaviour
                 SceneManager.LoadScene("TitleScene");
                 break;
             case GameType.Main:
-                SceneManager.LoadScene("MainGameScene");
+                SceneManager.LoadScene("MainScene");
                 break;
             case GameType.Result:
                 SceneManager.LoadScene("ResultScene");

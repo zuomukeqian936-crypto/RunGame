@@ -38,6 +38,8 @@ public class GameOverController : MonoBehaviour
                 fadePanel.gameObject.SetActive(false);
             });
         }
+
+        ShowGameOver();
     }
 
     /// <summary>
@@ -50,11 +52,20 @@ public class GameOverController : MonoBehaviour
             gameOverPanel.SetActive(true);
         }
 
-        // MainGameManagerから最終スコアを取得
+        // --- 変更: JSONファイルからスコアを読み込む ---
         int finalScore = 0;
-        if (MainGameManager.Instance != null)
+        string filePath = Application.persistentDataPath + "/gamedata.json";
+
+        if (System.IO.File.Exists(filePath))
         {
-            finalScore = MainGameManager.Instance.CurrentScore;
+            string jsonString = System.IO.File.ReadAllText(filePath);
+            GameData data = JsonUtility.FromJson<GameData>(jsonString);
+            finalScore = data.finalScore;
+            Debug.Log($"JSONからスコアを読み込みました: {finalScore}");
+        }
+        else
+        {
+            Debug.LogWarning("セーブデータが見つからなかったため、スコアを 0 として扱います。");
         }
 
         // 今回のスコアを表示（6桁ゼロ埋め指定）

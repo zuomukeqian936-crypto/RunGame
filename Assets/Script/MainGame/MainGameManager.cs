@@ -19,6 +19,9 @@ public class MainGameManager : MonoBehaviour
     [SerializeField] bool isGameOver = false;
     [SerializeField] bool isGameStarted = false; // カウントダウンが終わりゲームが開始したか
 
+    // 外部のスクリプトからゲームが開始しているか確認できるようにするためのプロパティ
+    public bool IsGameStarted => isGameStarted;
+
     [Header("障害物ヒット設定")]
     [SerializeField, Tooltip("障害物に当たれる許容回数（2回目でゲームオーバー）")]
     private int maxObstacleHits = 2;
@@ -37,6 +40,10 @@ public class MainGameManager : MonoBehaviour
     private Image fadePanel;
     [SerializeField, Tooltip("フェードアウト/インにかかる時間（秒）")]
     private float fadeDuration = 1.0f;
+
+    [Header("シーン遷移設定")]
+    [SerializeField, Tooltip("シーン遷移用コントローラー")]
+    private GameSceneController gameSceneController;
 
     private float elapsedTime = 0f;
 
@@ -66,6 +73,9 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     private IEnumerator GameStartSequence()
     {
+        // 最初はゲームが始まっていない状態を明示
+        isGameStarted = false;
+
         if (fadePanel != null)
         {
             fadePanel.gameObject.SetActive(true);
@@ -100,11 +110,13 @@ public class MainGameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        // カウントダウン終了後にゲーム開始フラグをオンにする
         isGameStarted = true;
     }
 
     private void Update()
     {
+        // カウントダウン中（isGameStartedがfalse）またはゲームオーバー時は処理を進めない
         if (!isGameStarted || isGameOver) return;
 
         elapsedTime += Time.deltaTime;
@@ -129,12 +141,10 @@ public class MainGameManager : MonoBehaviour
 
         if (currentObstacleHits < maxObstacleHits)
         {
-            // 1回目のヒット：蛇の座標を一段階前に戻す処理
             RewindPlayerPosition();
         }
         else
         {
-            // 2回目のヒット：ゲームオーバーへ繋げる
             OnSnakeHit();
         }
     }
@@ -146,10 +156,8 @@ public class MainGameManager : MonoBehaviour
     {
         if (playerTransform != null)
         {
-            // 例として、進行方向の逆（手前）に少し座標を戻す（ゲームの仕様に合わせて軸を調整してください）
-            // 縦スクロールや奥に進むゲームの場合は Z や Y を調整します
             Vector3 pos = playerTransform.position;
-            pos.z -= rewindDistance; // 例：Z軸を後ろに戻す場合
+            pos.z -= rewindDistance;
             playerTransform.position = pos;
 
             Debug.Log("蛇の座標を一段階前に戻しました。");
@@ -161,7 +169,7 @@ public class MainGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 蛇に触れた（または2回目の障害物ヒット）ときなどに呼び出すゲームオーバーメソッド
+    /// ゲームオーバー処理
     /// </summary>
     public void OnSnakeHit()
     {
@@ -190,6 +198,34 @@ public class MainGameManager : MonoBehaviour
         if (GameUIEventChannel.Instance != null)
         {
             GameUIEventChannel.Instance.RaiseShowGameOverUI();
+        }
+
+        // --- 変更: JSON形式でデータを保存する ---
+        GameData data = new GameData();
+        data.finalScore = score;
+
+        string jsonString = JsonUtility.ToJson(data);
+        string filePath = Application.persistentDataPath + "/gamedata.json";
+
+        System.IO.File.WriteAllText(filePath, jsonString);
+        Debug.Log($"JSONでスコアを保存しました: {filePath}");
+
+        // リザルトシーンへの遷移
+        if (gameSceneController != null)
+        {
+            gameSceneController.ChangeScene(GameType.Result);
+        }
+        else
+        {
+            GameSceneController controller = FindObjectOfType<GameSceneController>();
+            if (controller != null)
+            {
+                controller.ChangeScene(GameType.Result);
+            }
+            else
+            {
+                Debug.LogError("GameSceneController がシーン内に見つかりません。");
+            }
         }
     }
 
